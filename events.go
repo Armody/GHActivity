@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 func getEvents(userName string) (Events, error) {
@@ -20,20 +21,16 @@ func getEvents(userName string) (Events, error) {
 	}
 	defer res.Body.Close()
 
-	// body, err := io.ReadAll(res.Body)
-	// if err != nil {
-	// 	return []Events{}, fmt.Errorf("error reading response: %w", err)
-	// }
+	if res.StatusCode == 404 {
+		fmt.Println("invalid username")
+		os.Exit(0)
+	}
 
 	var events Events
 	decoder := json.NewDecoder(res.Body)
 	if err := decoder.Decode(&events); err != nil {
 		return Events{}, fmt.Errorf("error unmarshalling response: %w", err)
 	}
-
-	// if err := json.Unmarshal(body, &events); err != nil {
-	// 	return []Events{}, fmt.Errorf("error unmarshalling response: %w", err)
-	// }
 
 	return events, nil
 }
